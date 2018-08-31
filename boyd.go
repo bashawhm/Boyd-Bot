@@ -22,11 +22,11 @@ func buildSentance(asideChance uint32, interjectionChance uint32) string {
 
     rand := rand.New(rand.NewSource(time.Now().UnixNano()))
     sentance := ""
-    if rand.Uint32() % asideChance == asideChance {
+    if rand.Uint32() % asideChance == (asideChance - 1) {
         sentance = aside[rand.Uint32() % 2]
         return sentance
     }
-    if rand.Uint32() % interjectionChance == interjectionChance {
+    if rand.Uint32() % interjectionChance == (interjectionChance - 1) {
         sentance = interjection[rand.Uint32() % 15]
         return sentance
     }
@@ -34,12 +34,6 @@ func buildSentance(asideChance uint32, interjectionChance uint32) string {
     sentance = sentance + subjects[rand.Uint32() % 39] + " " + subjectConnector[rand.Uint32() % 8] + " " +  subjects[rand.Uint32() % 39] + " " + intransitiveVerb[rand.Uint32() % 17] + " " +  preposition[rand.Uint32() % 7] + " " +  object[rand.Uint32() % 17]
     return sentance
 }
-
-/*
-func main(){
-    fmt.Println(buildSentance(5, 5));
-}
-*/
 
 func main(){
     roomName := "##cosi"
@@ -58,7 +52,6 @@ func main(){
         msg := e.Message()
         if strings.Contains(msg, botName){
             conn.Privmsg(roomName, (buildSentance(5, 5)))
-//            fmt.Println(buildSentance(5, 5));
         }
     })
 
