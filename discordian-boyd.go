@@ -1,12 +1,17 @@
 package main
 
 import (
-    "github.com/thoj/go-ircevent"
-    "fmt"
-    "strings"
     "math/rand"
     "time"
+    "syscall"
+    "os"
+    "fmt"
+    "os/signal"
+	"github.com/bwmarrin/discordgo"
+    "strings"
 )
+
+var Token string = "NDg2NjQ2MDM3NDA3MDcyMjYx.DnCICA.NIkLTi2__hPYPsxmE-QlX68plZk"
 
 func buildSentance(asideChance uint32, interjectionChance uint32) string {
     subjects := [40]string{"those little green cops", "the Milkman", "the military industrial complex", "the suits", "the analyticals, man,", "those Bermuda Triangle sharks", "all them haters", "Hernando", "that little fat kid, with the bunny,", "the doctors back at the clinic", "the pelicans", "the squirrels", "the manager of that boy band", "those eggheads in their ivory tower", "that guy with the eyepatch", "the Psycho-whatsits", "the freaky hunchback girl who loves brains so much", "the dairy industry", "the kid with the goggles", "the dogtrack regulators", "the tuna canneries", "the National Park system", "Big Oil", "organized labor", "the rodeo clown cartel", "the media", "the cows", "foreign toymakers", "the dairy industry", "the intelligentsia", "the fluoride producers", "a secret doomsday cult", "the president's brother", "my first cat, Seymour,", "oh! one of my nostril hairs", "the intelligence community", "the five richest families in the country", "all those stupid crows", "some sort of power, y'know?", "my good pal Vinny" }
@@ -39,26 +44,36 @@ func buildSentance(asideChance uint32, interjectionChance uint32) string {
     return sentance
 }
 
-func main(){
-    roomName := "#testit"
-    botName := "boyd_bot"
-    serverNamePort := "irc.freenode.net:6667"
-
-    conn := irc.IRC(botName, botName);
-    err := conn.Connect(serverNamePort);
-    if err != nil {
-        fmt.Println("failed to connect")
+func bot(s *discordgo.Session, m *discordgo.MessageCreate) {
+    if m.Author.ID == s.State.User.ID {
         return
     }
 
-    conn.AddCallback("001", func(e *irc.Event){ conn.Join(roomName) });
-    conn.AddCallback("PRIVMSG", func(e *irc.Event){
-        msg := e.Message()
-        if strings.Contains(msg, botName){
-            conn.Privmsg(roomName, (buildSentance(5, 5)))
-        }
-    })
-
-    conn.Loop()
+    if strings.Contains(m.Content, "Boyd") {
+        time.Sleep(5 * time.Second)
+        s.ChannelMessageSend(m.ChannelID, buildSentance(5, 5))
+    }
 }
 
+func main() {
+    ds, err := discordgo.New("Bot " + Token)
+    if err != nil {
+        panic("failed to create session")
+    }
+
+    ds.AddHandler(bot)
+    err = ds.Open()
+    if err != nil {
+        panic("failed to connect")
+    }
+
+    // Wait here until CTRL-C or other term signal is received.
+	fmt.Println("Boyd is now running.  Press CTRL-C to exit.")
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-sc
+
+	// Cleanly close down the Discord session.
+	ds.Close()
+
+}
