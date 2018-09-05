@@ -34,7 +34,7 @@ func buildSentance(asideChance uint32, interjectionChance uint32) string {
     if rand.Int() % 2 == 0 {
         sentance = subjects[rand.Int() % 40] + " " + transitiveVerb[rand.Int() % 12] + " " + object[rand.Int() % 17] + " " + conclution[rand.Int() % 9]
     } else {
-        sentance = subjects[rand.Uint32() % 40] + " " + subjectConnector[rand.Uint32() % 8] + " " +  subjects[rand.Uint32() % 39] + " " + intransitiveVerb[rand.Uint32() % 17] + " " +  preposition[rand.Uint32() % 7] + " " +  object[rand.Uint32() % 17]
+        sentance = subjects[rand.Uint32() % 40] + " " + subjectConnector[rand.Uint32() % 8] + " " +  subjects[rand.Uint32() % 40] + " " + intransitiveVerb[rand.Uint32() % 17] + " " +  preposition[rand.Uint32() % 7] + " " +  object[rand.Uint32() % 17]
     }
     return sentance
 }
